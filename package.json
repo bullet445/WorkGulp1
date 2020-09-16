@@ -1,0 +1,19 @@
+{
+  "name": "gulps",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sergey",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.26.12",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2"
+  },
+  "dependencies": {
+    "gulp-file-include": "^2.2.2"
+  }
+}
