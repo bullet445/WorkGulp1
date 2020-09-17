@@ -1,0 +1,32 @@
+p {
+  color: red;
+}
+
+body {
+  font-size: 15px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+span {
+  font-size: 5px;
+}
+
+div {
+  font-size: 30px;
+}
+
+@media (max-width: 767px) {
+  span {
+    font-size: 25px;
+    color: green;
+    box-shadow: 0 0 10px green;
+  }
+
+  div {
+    font-size: 40px;
+    color: blue;
+  }
+}

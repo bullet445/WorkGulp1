@@ -11,14 +11,14 @@ const path = {
     },
     src: {
         html: [source_project + "/index.html"],
-        css: source_project + "/scss/style.scss",
+        css: source_project + "/style.scss",
         js: source_project + "/js/script.js",
         img: source_project + "/img/**/*.{}",
         fonts: source_project + "/fonts/",
     },
     watch: {
         html: source_project + "/**/*.html",
-        css: source_project + "/scss/**/*.scss",
+        css: source_project + "/**/*.scss",
         js: source_project + "/js/script.js",
         img: source_project + "/img/**/*.{jpg,png,svg,gif,ico,wedp}",
         
@@ -27,12 +27,18 @@ const path = {
 };
 
 let {src, dest} = require('gulp');
+const autoPrefixer = require('gulp-autoprefixer');
     gulp = require('gulp');
     fileinclude = require('gulp-file-include');
     browsersync = require('browser-sync').create();
     fileinclude = require('gulp-file-include');
     del = require('del');
-
+    sass = require('gulp-sass');
+    autoprefixer = require('gulp-autoprefixer');
+    group_media = require('gulp-group-css-media-queries');
+    clean_css = require('gulp-clean-css');
+    rename = require('gulp-rename');
+    
 function browserSync(params) {
     browsersync.init({
         server: {
@@ -53,18 +59,35 @@ function html(){
     .pipe(browsersync.stream())
 }
 
+function css () {
+    return src(path.src.css)
+    .pipe(sass())
+    .pipe(
+        autoprefixer({
+            cascade: true
+        })
+        )
+    .pipe(group_media())
+    
+    .pipe(gulp.dest(path.build.css))
+    .pipe(clean_css())
+    .pipe(rename({extname: ".min.css"}))
+    .pipe(gulp.dest(path.build.css))
+}
+
 function watchFiles() {
-    gulp.watch([path.watch.html], html)
+    gulp.watch([path.watch.html, path.watch.css], html);
 }
 
 async function clean(params) {
     const deletedFilePaths = await del(['./build/*.*']);
 }
 
-const build = gulp.series(clean, html);
+const build = gulp.series(clean, gulp.parallel(css,html));
 const watch = gulp.parallel(build, watchFiles, browserSync);
 
-exports.html = html;
+
+exports.css = css;
 exports.build = build;
 exports.watch = watch;
 exports.default = watch;
