@@ -12,15 +12,15 @@ const path = {
     src: {
         html: [source_project + "/index.html"],
         css: source_project + "/style.scss",
-        js: source_project + "/js/script.js",
-        img: source_project + "/img/**/*.{}",
+        js: source_project + "/js/index.js",
+        img: source_project + "/img/**/*.*",
         fonts: source_project + "/fonts/",
     },
     watch: {
         html: source_project + "/**/*.html",
         css: source_project + "/**/*.scss",
-        js: source_project + "/js/script.js",
-        img: source_project + "/img/**/*.{jpg,png,svg,gif,ico,wedp}",
+        js: source_project + "/js/*.js",
+        img: source_project + "/img/**/*.*",
         
     },
     clean: './build'
@@ -38,6 +38,8 @@ const autoPrefixer = require('gulp-autoprefixer');
     group_media = require('gulp-group-css-media-queries');
     clean_css = require('gulp-clean-css');
     rename = require('gulp-rename');
+    uglify = require('gulp-uglify-es').default;
+    imagemin = require('gulp-imagemin');
     
 function browserSync(params) {
     browsersync.init({
@@ -59,6 +61,16 @@ function html(){
     .pipe(browsersync.stream())
 }
 
+function js(){
+    return src(path.src.js)
+    .pipe(fileinclude())
+    .pipe(dest(path.build.js))
+    .pipe(uglify())
+    .pipe(rename({extname: ".min.js"}))
+    .pipe(dest(path.build.js))
+    .pipe(browsersync.stream())
+}
+
 function css () {
     return src(path.src.css)
     .pipe(sass())
@@ -73,20 +85,48 @@ function css () {
     .pipe(clean_css())
     .pipe(rename({extname: ".min.css"}))
     .pipe(gulp.dest(path.build.css))
+    .pipe(browsersync.stream())
+}
+
+
+function imgMin(){
+    return src(path.src.img)
+    .pipe(
+        imagemin({
+            progressive: true,
+            svgPlugins: [{removeViveBox: false}],
+            interlaced: true,
+            optimizationLevel: 3
+        })
+    )
+    .pipe(gulp.dest(path.build.img))
+    .pipe(browsersync.stream())
+}
+
+function fonts(){
+    return src(path.src.fonts)
+    .pipe(dest(path.build.fonts))
+    
 }
 
 function watchFiles() {
-    gulp.watch([path.watch.html, path.watch.css], html);
+    gulp.watch([path.watch.html], html);
+    gulp.watch([path.watch.css], css);
+    gulp.watch([path.watch.js], js);
+    gulp.watch([path.watch.img], imgMin);
 }
 
 async function clean(params) {
     const deletedFilePaths = await del(['./build/*.*']);
 }
 
-const build = gulp.series(clean, gulp.parallel(css,html));
+const build = gulp.series(clean, gulp.parallel(fonts,imgMin,js,css,html));
 const watch = gulp.parallel(build, watchFiles, browserSync);
 
 
+
+exports.imgMin = imgMin;
+exports.html = html;
 exports.css = css;
 exports.build = build;
 exports.watch = watch;
