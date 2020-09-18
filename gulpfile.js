@@ -41,6 +41,7 @@ const autoPrefixer = require('gulp-autoprefixer');
     uglify = require('gulp-uglify-es').default;
     imagemin = require('gulp-imagemin');
     
+    
 function browserSync(params) {
     browsersync.init({
         server: {
@@ -53,14 +54,14 @@ function browserSync(params) {
         logPrefix: "Sergey"
     })
 }
-
+//html 
 function html(){
     return src(path.src.html)
     .pipe(fileinclude())
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
 }
-
+//js
 function js(){
     return src(path.src.js)
     .pipe(fileinclude())
@@ -70,7 +71,7 @@ function js(){
     .pipe(dest(path.build.js))
     .pipe(browsersync.stream())
 }
-
+//css
 function css () {
     return src(path.src.css)
     .pipe(sass())
@@ -80,15 +81,13 @@ function css () {
         })
         )
     .pipe(group_media())
-    
     .pipe(gulp.dest(path.build.css))
     .pipe(clean_css())
     .pipe(rename({extname: ".min.css"}))
     .pipe(gulp.dest(path.build.css))
     .pipe(browsersync.stream())
 }
-
-
+//img
 function imgMin(){
     return src(path.src.img)
     .pipe(
@@ -102,28 +101,25 @@ function imgMin(){
     .pipe(gulp.dest(path.build.img))
     .pipe(browsersync.stream())
 }
-
+//fonts
 function fonts(){
     return src(path.src.fonts)
     .pipe(dest(path.build.fonts))
-    
 }
-
+//слежение
 function watchFiles() {
     gulp.watch([path.watch.html], html);
     gulp.watch([path.watch.css], css);
     gulp.watch([path.watch.js], js);
     gulp.watch([path.watch.img], imgMin);
 }
-
+//чистка папки build
 async function clean(params) {
     const deletedFilePaths = await del(['./build/*.*']);
 }
 
 const build = gulp.series(clean, gulp.parallel(fonts,imgMin,js,css,html));
 const watch = gulp.parallel(build, watchFiles, browserSync);
-
-
 
 exports.imgMin = imgMin;
 exports.html = html;
